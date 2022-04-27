@@ -10,5 +10,9 @@
     ],
     "rules": {
         "@typescript-eslint/quotes": ["error", "single"]
+    },
+    "env": {
+        "es6": true,
+        "serviceworker": true
     }
 }
