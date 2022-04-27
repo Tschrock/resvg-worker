@@ -6,11 +6,11 @@ export function jsonOk(body: unknown): Response {
     return ok(JSON.stringify(body), 'application/json')
 }
 
-export function ok(body: BodyInit, contentType: string): Response {
+export function ok(body: BodyInit, contentType: string, otherHeaders?: HeadersInit): Response {
     return new Response(body, {
         status: 200,
         statusText: 'OK',
-        headers: { 'Content-Type': contentType }
+        headers: { 'Content-Type': contentType, ...otherHeaders }
     })
 }
 

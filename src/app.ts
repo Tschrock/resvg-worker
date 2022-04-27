@@ -7,13 +7,13 @@ import { APPLICATIONS } from './auth'
 import index from './html/index.html'
 import { renderFromRemote } from './resvg'
 
-type RequestHandler = (request: Request, url: URL, params: Params) => Response | Promise<Response>
+type RequestHandler = (request: Request, url: URL, params: Params, context: ExecutionContext) => Response | Promise<Response>
 
 export const app = new Router<RequestHandler>()
 
 app.get('/', () => htmlOk(index))
 
-app.get('/api/v1/:key/:id.png', async (req, url, { key, id }): Promise<Response> => {
+app.get('/api/v1/:key/:id.png', async (req, url, { key, id }, context): Promise<Response> => {
 
     const site = APPLICATIONS.get(key);
     if (!site) return notFound('Unknown application key.');
@@ -43,5 +43,12 @@ app.get('/api/v1/:key/:id.png', async (req, url, { key, id }): Promise<Response>
 
     const sourceUrl = interpolate(site.url, { id });
 
-    return renderFromRemote(sourceUrl, { fitTo });
+    const pngResponse = await renderFromRemote(sourceUrl, { fitTo });
+
+    if(pngResponse.ok) {
+        const cacheKey = new Request(url.toString(), req)
+        context.waitUntil(caches.default.put(cacheKey, pngResponse.clone()));
+    }
+
+    return pngResponse
 })

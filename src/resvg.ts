@@ -13,5 +13,7 @@ export async function renderFromRemote(url: string, options: ResvgRenderOptions)
     const svgData = await response.arrayBuffer();
     const pngData = resvg.render(new Uint8Array(svgData), options);
 
-    return ok(pngData, 'image/png');
+    return ok(pngData, 'image/png', {
+        'Cache-Control': 'public, max-age=604800, immutable'
+    });
 }
